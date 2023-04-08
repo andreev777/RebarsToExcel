@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+
+	<AddIn Type="Application">
+		<Name>RebarsToExcel</Name>
+		<Assembly>RebarsToExcel.dll</Assembly>
+		<ClientId>955724F7-CC74-4B22-8553-649D02B99B39</ClientId>
+		<FullClassName>RebarsToExcel.RebarsToExcelApp</FullClassName>
+		<VendorId>Andreev</VendorId>
+		<VendorDescription>BIM Departament Andreev</VendorDescription>
+	</AddIn>
+</RevitAddIns>

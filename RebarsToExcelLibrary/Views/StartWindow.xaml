@@ -1,0 +1,358 @@
+﻿<Window x:Class="RebarsToExcel.Views.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:viewmodels="clr-namespace:RebarsToExcel.ViewModels" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:DataManageVM}"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="800" Width="1350" MinHeight="500" MinWidth="1300"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResizeWithGrip"
+        BorderBrush="#808080" BorderThickness="0.5" Background="#F6F6F6" Foreground="#1A1A1A" MouseDown="dataGrid_UnselectClick">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" GlassFrameThickness="0,0,0,1" CornerRadius="0" ResizeBorderThickness="5"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/AtomStyleLibrary;component/Dictionaries/Controls.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style TargetType="DataGridRow">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Path=ElementType}" Value="Virtual">
+                        <Setter Property="Background" Value="{StaticResource AtomGreen100Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=TypeOfConstruction}" Value="(нет)">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=Length}" Value="0">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=Mass}" Value="0">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=ConstructionCount}" Value="0">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=TypicalFloor}" Value="0">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=TypicalFloorCount}" Value="0">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=Level}" Value="(нет)">
+                        <Setter Property="Background" Value="{StaticResource AtomRed800Brush}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            
+            <Style x:Key="FocusVisual">
+                <Setter Property="Control.Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Rectangle Margin="2" StrokeDashArray="1 2" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" SnapsToDevicePixels="true" StrokeThickness="0.5"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <SolidColorBrush x:Key="TabItem.Static.Background" Color="Transparent"/>
+            <SolidColorBrush x:Key="TabItem.Static.Border" Color="{StaticResource AtomGray700}"/>
+            <SolidColorBrush x:Key="TabItem.MouseOver.Background" Color="Transparent"/>
+            <SolidColorBrush x:Key="TabItem.MouseOver.Border" Color="{StaticResource AtomRed}"/>
+            <SolidColorBrush x:Key="TabItem.MouseOver.Foreground" Color="{StaticResource AtomRed}"/>
+            <SolidColorBrush x:Key="TabItem.Selected.Background" Color="Transparent"/>
+            <SolidColorBrush x:Key="TabItem.Selected.Border" Color="{StaticResource AtomGreen}"/>
+            <SolidColorBrush x:Key="TabItem.Selected.Foreground" Color="{StaticResource AtomGreen}"/>
+            <SolidColorBrush x:Key="TabItem.Disabled.Background" Color="Transparent"/>
+            <SolidColorBrush x:Key="TabItem.Disabled.Border" Color="{StaticResource AtomGray300}"/>
+            <SolidColorBrush x:Key="TabItem.Disabled.Foreground" Color="{StaticResource AtomGray700}"/>
+            <Style x:Key="AtomTabItemStyle" TargetType="{x:Type TabItem}">
+                <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                <Setter Property="Foreground" Value="{StaticResource AtomGray900Brush}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AtomGray700Brush}"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="FontFamily" Value="{StaticResource SemiBold}"/>
+                <Setter Property="Padding" Value="6,2,6,2"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TabItem}">
+                            <Grid x:Name="templateRoot" SnapsToDevicePixels="true" Margin="0,0,0,10">
+                                <Border x:Name="mainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0,0,0,0" Margin="0">
+                                    <Border x:Name="innerBorder" Background="{StaticResource TabItem.Selected.Background}" BorderBrush="{StaticResource TabItem.Selected.Border}" BorderThickness="0,0,0,0.5" Margin="0,0,0,-2" Opacity="0"/>
+                                </Border>
+                                <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="true"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource TabItem.MouseOver.Background}"/>
+                                    <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource TabItem.MouseOver.Border}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TabItem.MouseOver.Foreground}"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Background" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Background}"/>
+                                    <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource TabItem.Disabled.Border}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TabItem.Disabled.Foreground}"/>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="false"/>
+                                    </MultiDataTrigger.Conditions>
+                                </MultiDataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Self}}" Value="true"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="BorderBrush" TargetName="mainBorder" Value="{StaticResource TabItem.Selected.Border}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TabItem.Selected.Foreground}"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Opacity" TargetName="innerBorder" Value="1"/>
+                                </MultiDataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!--Необходимо для кнопки Закрыть-->
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute_1" Executed="CommandBinding_Executed_1" />
+    </Window.CommandBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*" MinHeight="200"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+
+        <!--#region ШАПКА ПРИЛОЖЕНИЯ-->
+        <Border Grid.Row="0" Grid.ColumnSpan="5" Background="Transparent" MouseDown="DragWithMouse" Height="44">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="44" MinWidth="44" />
+                </Grid.ColumnDefinitions>
+
+                <Label Style="{StaticResource AtomLogoLabelStyle}" />
+
+                <TextBlock x:Name="tableHeaderTextBlock" Grid.Column="1"
+                            Text="АРМАТУРА" Style="{StaticResource HeaderFont}"
+                            VerticalAlignment="Center" Padding="4,3,0,0" />
+
+                <TextBlock x:Name="activeDocTextBlock" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Text="{Binding DocumentTitle}"
+                           Style="{StaticResource RegularFont}"
+                           Foreground="{StaticResource AtomGray700Brush}" />
+
+                <Button Style="{DynamicResource AtomCloseButtonStyle}" x:Name="closeButton" Grid.Column="2"
+                        Command="{x:Static SystemCommands.CloseWindowCommand}" />
+            </Grid>
+        </Border>
+        <!--#endregion-->
+
+        <TabControl x:Name="dataTabControl" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BorderThickness="0" Background="Transparent" Margin="0,10,0,0">
+            <TabItem x:Name="barsTabItem" Header="ДЕТАЛИ" Style="{StaticResource AtomTabItemStyle}">
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="*" MinHeight="200"/>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*" MinWidth="120"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="ЭТАЖ"  Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource TitleFont}" />
+                        </StackPanel>
+
+                        <ListView x:Name="barLevelsListView" Grid.Row="2" Grid.Column="0" BorderThickness="0.5"
+                                    ItemsSource="{Binding BarLevels}"
+                                    Style="{StaticResource AtomStyleListViewWithCheckboxes}"
+                                    ItemContainerStyle="{StaticResource AtomStyleListViewItemWithCheckboxes}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Path=Name}" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" 
+                                                Command="{Binding Path=DataContext.SelectBarLevelCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="СЕКЦИЯ" Margin="5,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="barSectionsComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center"
+                                      ItemsSource="{Binding BarSections}" 
+                                      SelectedItem="{Binding SelectedBarSection, Mode=TwoWay}"/>
+
+                            <TextBlock Text="ТИП ОСНОВЫ" Margin="30,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="barConstructionTypesComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center" 
+                                      ItemsSource="{Binding BarConstructionTypes}" 
+                                      SelectedItem="{Binding SelectedBarConstructionType, Mode=TwoWay}"/>
+
+                            <TextBlock Text="МЕТКА ОСНОВЫ" Margin="30,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="barConstructionMarksComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center" 
+                                      ItemsSource="{Binding BarConstructionMarks, UpdateSourceTrigger=PropertyChanged}" 
+                                      SelectedItem="{Binding SelectedBarConstructionMark, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical">
+                            <Button x:Name="selectAllBarLevelsButton" Margin="0,15,0,0" Style="{StaticResource AtomSelectAllButtonStyle}"
+                                    Command="{Binding SelectAllBarLevelsCommand}"/>
+                            <Button x:Name="selectNoneBarLevelsButton" Margin="0,10,0,0" Style="{StaticResource AtomSelectNoneButtonStyle}"
+                                    Command="{Binding UnselectAllBarLevelsCommand}"/>
+                            <Button x:Name="selectInModelBarButton" Margin="0,30,0,0" Style="{StaticResource AtomSelectInModelButtonStyle}"
+                                    Click="selectInModelBarButton_Click"/>
+                        </StackPanel>
+
+                        <DataGrid x:Name="barsDataGrid" Grid.Row="2" Grid.Column="2" GridLinesVisibility="None" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                                  ItemsSource="{Binding BarsCollectionView}"
+                                  SelectedItem="{Binding SelectedBar, Mode=TwoWay}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Поз." Width="Auto" Binding="{Binding Path=Position}"/>
+                                <DataGridTextColumn Header="Наименование" Width="*" Binding="{Binding Path=DiameterClassInfo}" CellStyle="{StaticResource LeftCellStyle}"/>
+                                <DataGridTextColumn Header="Длина, мм" Width="100" Binding="{Binding Path=Length}" CellStyle="{StaticResource LeftCellStyle}"/>
+                                <DataGridTextColumn Header="Кол." Width="50" Binding="{Binding Path=Count}"/>
+                                <DataGridTextColumn Header="Тип подсчета" Width="80" Binding="{Binding Path=CountTypeInfo}"/>
+                                <DataGridTextColumn Header="Масса, кг" Width="80" Binding="{Binding Path=Mass, StringFormat={}{0:n2}}"/>
+                                <DataGridTextColumn Header="Тип основы" Width="100" Binding="{Binding Path=ConstructionType}" CellStyle="{StaticResource LeftCellStyle}"/>
+                                <DataGridTextColumn Header="Метка основы" Width="80" Binding="{Binding Path=ConstructionMark}"/>
+                                <DataGridTextColumn Header="Кол. основ" Width="50" Binding="{Binding Path=ConstructionCount}"/>
+                                <DataGridTextColumn Header="Типовой этаж" Width="80" Binding="{Binding Path=TypicalFloor}"/>
+                                <DataGridTextColumn Header="Кол. типовых этажей" Width="80" Binding="{Binding Path=TypicalFloorCount}"/>
+                                <DataGridTextColumn Header="Этаж" Width="0.3*" MinWidth="80" Binding="{Binding Path=Level.Name}"/>
+                                <DataGridTextColumn Header="Секция" MinWidth="80" Binding="{Binding Path=Section}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
+                            <Button x:Name="getBarIdsButton" Content="ID ЭЛЕМЕНТОВ" VerticalAlignment="Center" Width="150"
+                                    Style="{StaticResource AtomGreenButtonStyle}"
+                                    Click="getBarIdsButton_Click"/>
+                            <Button x:Name="exportBarToExcelButton" Content="ЭКСПОРТ В EXCEL" VerticalAlignment="Center" Width="150" Margin="30,0,0,0"
+                                    Style="{StaticResource AtomGreenButtonStyle}"
+                                    Command="{Binding ExportToExcelCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+            <TabItem x:Name="rebarAssembliesTabItem" Header="СБОРОЧНЫЕ ЕДИНИЦЫ" Style="{StaticResource AtomTabItemStyle}">
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="*" MinHeight="200"/>
+                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.2*" MinWidth="120"/>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="ЭТАЖ"  Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource TitleFont}" />
+                        </StackPanel>
+
+                        <ListView x:Name="rebarAssemblyLevelsListView" Grid.Row="2" Grid.Column="0" BorderThickness="0.5"
+                                  ItemsSource="{Binding RebarAssemblyLevels}"
+                                  Style="{StaticResource AtomStyleListViewWithCheckboxes}"
+                                  ItemContainerStyle="{StaticResource AtomStyleListViewItemWithCheckboxes}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox Content="{Binding Path=Name}" IsChecked="{Binding Path=IsSelected, Mode=TwoWay}" 
+                                              Command="{Binding Path=DataContext.SelectRebarAssemblyLevelCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                            <TextBlock Text="СЕКЦИЯ" Margin="5,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="rebarAssemblySectionsComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center"
+                                      ItemsSource="{Binding RebarAssemblySections}" 
+                                      SelectedItem="{Binding SelectedRebarAssemblySection, Mode=TwoWay}"/>
+
+                            <TextBlock Text="ТИП ОСНОВЫ" Margin="30,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="rebarAssemblyConstructionTypesComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center" 
+                                      ItemsSource="{Binding RebarAssemblyConstructionTypes}" 
+                                      SelectedItem="{Binding SelectedRebarAssemblyConstructionType, Mode=TwoWay}"/>
+
+                            <TextBlock Text="МЕТКА ОСНОВЫ" Margin="30,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
+                            <ComboBox x:Name="rebarAssemblyConstructionMarksComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center" 
+                                      ItemsSource="{Binding RebarAssemblyConstructionMarks, UpdateSourceTrigger=PropertyChanged}" 
+                                      SelectedItem="{Binding SelectedRebarAssemblyConstructionMark, Mode=TwoWay}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical">
+                            <Button x:Name="selectAllRebarAssemblyButton" Margin="0,15,0,0" Style="{StaticResource AtomSelectAllButtonStyle}"
+                                    Command="{Binding SelectAllRebarAssemblyLevelsCommand}"/>
+                            <Button x:Name="selectNoneRebarAssemblyButton" Margin="0,10,0,0" Style="{StaticResource AtomSelectNoneButtonStyle}"
+                                    Command="{Binding UnselectAllRebarAssemblyLevelsCommand}"/>
+                            <Button x:Name="selectInModelRebarAssemblyButton" Margin="0,30,0,0" Style="{StaticResource AtomSelectInModelButtonStyle}"
+                                    Click="selectInModelRebarAssemblyButton_Click"/>
+                        </StackPanel>
+
+                        <DataGrid x:Name="rebarAssembliesDataGrid" Grid.Row="2" Grid.Column="2" GridLinesVisibility="None" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                                  ItemsSource="{Binding RebarAssembliesCollectionView}"
+                                  SelectedItem="{Binding SelectedRebarAssembly, Mode=TwoWay}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ElementType" Width="*" Binding="{Binding Path=ElementType}" Visibility="Collapsed" />
+                                <DataGridTextColumn Header="Поз." Width="Auto" Binding="{Binding Path=Mark}" />
+                                <DataGridTextColumn Header="Наименование" Width="*" Binding="{Binding Path=Type}" CellStyle="{StaticResource LeftCellStyle}" />
+                                <DataGridTextColumn Header="Кол." Width="50" Binding="{Binding Path=Count}" />
+                                <DataGridTextColumn Header="Масса ед., кг" Width="80" Binding="{Binding Path=Mass, StringFormat={}{0:n2}}" />
+                                <DataGridTextColumn Header="Тип основы" Width="100" Binding="{Binding Path=ConstructionType}" CellStyle="{StaticResource LeftCellStyle}" />
+                                <DataGridTextColumn Header="Метка основы" Width="80" Binding="{Binding Path=ConstructionMark}" />
+                                <DataGridTextColumn Header="Кол. основ" Width="50" Binding="{Binding Path=ConstructionCount}" />
+                                <DataGridTextColumn Header="Типовой этаж" Width="80" Binding="{Binding Path=TypicalFloor}" />
+                                <DataGridTextColumn Header="Кол. типовых этажей" Width="80" Binding="{Binding Path=TypicalFloorCount}" />
+                                <DataGridTextColumn Header="Этаж" Width="0.3*" MinWidth="80" Binding="{Binding Path=Level.Name}" />
+                                <DataGridTextColumn Header="Секция" MinWidth="80" Binding="{Binding Path=Section}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
+                            <Button x:Name="getRebarAssemblyIdsButton" Content="ID ЭЛЕМЕНТОВ" VerticalAlignment="Center" Width="150"
+                                    Style="{StaticResource AtomGreenButtonStyle}"
+                                    Click="getRebarAssemblyIdsButton_Click"/>
+                            <Button x:Name="exportToExcelButton" Content="ЭКСПОРТ В EXCEL" VerticalAlignment="Center" Width="150" Margin="30,0,0,0"
+                                    Style="{StaticResource AtomGreenButtonStyle}"
+                                    Command="{Binding ExportToExcelCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem.Content>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="helpButton" VerticalAlignment="Center" Style="{StaticResource AtomQuestionMarkStyle}" Click="helpButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
