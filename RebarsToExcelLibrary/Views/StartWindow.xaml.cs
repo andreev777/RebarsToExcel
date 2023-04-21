@@ -3,34 +3,60 @@ using Autodesk.Revit.UI;
 using RebarsToExcel.Commands;
 using RebarsToExcel.Models;
 using RebarsToExcel.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace RebarsToExcel.Views
 {
     public partial class StartWindow : Window
     {
         private UIApplication _uiapp;
+        private DataManageVM _dataManageVM;
 
         public StartWindow(UIApplication uiapp, DataManageVM dataManageVM)
         {
             InitializeComponent();
             _uiapp = uiapp;
-            DataContext = dataManageVM;
+            _dataManageVM = dataManageVM;
+            DataContext = _dataManageVM;
 
-            if (dataManageVM.BarsTotalCount == 0)
+            if (_dataManageVM.BarsTotalCount == 0)
             {
                 barsTabItem.IsEnabled = false;
                 dataTabControl.SelectedIndex = 1;
             }
 
-            if (dataManageVM.RebarAssembliesTotalCount == 0)
+            if (_dataManageVM.RebarAssembliesTotalCount == 0)
             {
                 rebarAssembliesTabItem.IsEnabled = false;
                 dataTabControl.SelectedIndex = 0;
             }
+        }
+
+        private void barsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var bitmapImage = new BitmapImage();
+
+            bitmapImage.BeginInit();
+            bitmapImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            bitmapImage.CacheOption = BitmapCacheOption.None;
+
+            if (_dataManageVM.SelectedBarShapeImagePath == null)
+            {
+                bitmapImage.UriSource = null;
+            }
+            else
+            {
+                bitmapImage.UriSource = new Uri(_dataManageVM.SelectedBarShapeImagePath);
+                bitmapImage.EndInit();
+            }
+
+            shapeImage.Source = bitmapImage;
         }
 
         private void selectInModelBarButton_Click(object sender, RoutedEventArgs e)
@@ -104,7 +130,7 @@ namespace RebarsToExcel.Views
                 for (int i = 0; i < barsDataGrid.SelectedItems.Count; i++)
                 {
                     Bar selectedBar = barsDataGrid.SelectedItems[i] as Bar;
-                    var selectedBarIds = selectedBar.IdsAsString;
+                    var selectedBarIds = selectedBar.GetIdsAsString();
                     allSelectedBarIds.Add(selectedBarIds);
                 }
 
@@ -129,7 +155,7 @@ namespace RebarsToExcel.Views
                 for (int i = 0; i < rebarAssembliesDataGrid.SelectedItems.Count; i++)
                 {
                     RebarAssembly selectedRebarAssembly = rebarAssembliesDataGrid.SelectedItems[i] as RebarAssembly;
-                    var selectedRebarAssemblyIds = selectedRebarAssembly.IdsAsString;
+                    var selectedRebarAssemblyIds = selectedRebarAssembly.GetIdsAsString();
                     allSelectedRebarAssemblyIds.Add(selectedRebarAssemblyIds);
                 }
 

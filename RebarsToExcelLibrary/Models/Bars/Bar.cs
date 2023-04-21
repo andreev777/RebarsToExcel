@@ -1,33 +1,87 @@
 ﻿using Autodesk.Revit.DB;
 using System.Collections.Generic;
 using System.Linq;
+using RebarsToExcel.Models.Abstractions;
 
 namespace RebarsToExcel.Models
 {
-    public class Bar
+    /// <summary>
+    /// Класс детали.
+    /// </summary>
+    public class Bar : RebarAbstraction
     {
+        /// <summary>
+        /// ElementId.
+        /// </summary>
         public ElementId Id { get; set; }
-        public List<ElementId> Ids { get; set; } = new List<ElementId>();
-        public string IdsAsString { get; set; }
+        /// <summary>
+        /// Коллекция уникальных ElementId.
+        /// </summary>
+        public HashSet<ElementId> Ids { get; set; } = new HashSet<ElementId>();
+        /// <summary>
+        /// Позиция (Марка).
+        /// </summary>
         public string Position { get; set; }
-        public string Class { get; set; }
-        public double Diameter { get; set; } = 0;
-        public double Length { get; set; } = 0;
-        public int Count { get; set; } = 0;
-        public int CountType { get; set; } = 0;
-        public double Mass { get; set; } = 0;
-        public string Shape { get; set; }
+        /// <summary>
+        /// Позиция (Марка) с дополнительным обозначением для гнутой детали.
+        /// </summary>
+        public string PositionWithShapeMark { get; set; }
+        /// <summary>
+        /// Путь к файлу с изображением эскиза детали.
+        /// </summary>
+        public string ShapeImagePath { get; set; }
+        /// <summary>
+        /// _Тип подсчета количества: 1 - шт., 2 - м.п.
+        /// </summary>
+        public int CountType { get; set; }
+        /// <summary>
+        /// Уровень.
+        /// </summary>
         public RebarLevel Level { get; set; }
+        /// <summary>
+        /// _Секция.
+        /// </summary>
         public string Section { get; set; }
+        /// <summary>
+        /// _Тип основы.
+        /// </summary>
         public string ConstructionType { get; set; }
-        public ConstructionType ConstructionTypeEnum { get; set; } = Models.ConstructionType.Unknown;
+        /// <summary>
+        /// Тип основы (перечисление).
+        /// </summary>
+        public ConstructionType ConstructionTypeEnum { get; set; }
+        /// <summary>
+        /// _Метка основы.
+        /// </summary>
         public string ConstructionMark { get; set; }
-        public int ConstructionCount { get; set; } = 0;
-        public int TypicalFloor { get; set; } = 0;
-        public int TypicalFloorCount { get; set; } = 0;
-        public RebarElementType ElementType { get; set; } = RebarElementType.Real;
-        public string DiameterClassInfo { get; set; }
+        /// <summary>
+        /// _Количество основ.
+        /// </summary>
+        public int ConstructionCount { get; set; }
+        /// <summary>
+        /// _Типовой этаж.
+        /// </summary>
+        public int TypicalFloor { get; set; }
+        /// <summary>
+        /// _Количество типовых этажей.
+        /// </summary>
+        public int TypicalFloorCount { get; set; }
+        /// <summary>
+        /// Тип элемента: Real - реальный элемент модели, Virtual - виртуальный элемент модели, полученный аналитическим способом.
+        /// </summary>
+        public RebarElementType ElementType { get; set; }
+        /// <summary>
+        /// Строковое представление информации о детали. Например, "Ø12А500, L=3000".
+        /// </summary>
+        public string DiameterClassLengthInfo { get; set; }
+        /// <summary>
+        /// Строковое представление типа подсчета количества. Например, "шт." или "м.п."
+        /// </summary>
         public string CountTypeInfo { get; set; }
+        /// <summary>
+        /// Коллекция размеров детали.
+        /// </summary>
+        public IDictionary<BarSize, double> Sizes = new Dictionary<BarSize, double>();
 
         public Bar(string rebarClass, double diameter, double mass, string shape)
         {
@@ -35,17 +89,27 @@ namespace RebarsToExcel.Models
             Diameter = diameter;
             Mass = mass;
             Shape = shape;
-            DiameterClassInfo = $"⌀{Diameter} {Class}";
-        }
 
+            ConstructionTypeEnum = Models.ConstructionType.Unknown;
+            ElementType = RebarElementType.Real;
+        }
+        /// <summary>
+        /// Добавить экземпляр ElementId к существующей коллекции Ids.
+        /// </summary>
         public void AddId(ElementId id)
         {
             if (id != null)
             {
                 Ids.Add(id);
-                var idsAsIntegerCollection = Ids.Select(x => x.IntegerValue).Distinct().ToList();
-                IdsAsString = string.Join(", ", idsAsIntegerCollection);
             }
+        }
+        /// <summary>
+        /// Получить список Id в виде строки.
+        /// </summary>
+        public string GetIdsAsString()
+        {
+            var idsAsIntegerCollection = Ids.Select(x => x.IntegerValue);
+            return string.Join(", ", idsAsIntegerCollection);
         }
     }
 }

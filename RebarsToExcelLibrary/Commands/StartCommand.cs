@@ -52,7 +52,7 @@ namespace RebarsToExcel
                     return Result.Succeeded;
                 }
 
-                dataManageVM.BackgroundWorker.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) =>
+                dataManageVM.BackgroundWorker.RunWorkerCompleted += (sender, e) =>
                 {
                     StartWindow startWindow = new StartWindow(uiapp, dataManageVM);
                     startWindow.Show();

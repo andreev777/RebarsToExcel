@@ -2,6 +2,7 @@
 using Prism.Mvvm;
 using RebarsToExcel.Commands;
 using RebarsToExcel.Models;
+using RebarsToExcel.Models.Bars;
 using RebarsToExcel.Views;
 using System;
 using System.Collections.Generic;
@@ -13,49 +14,78 @@ namespace RebarsToExcel.ViewModels
 {
     public class DataManageVM : BindableBase
     {
-        private readonly string beamGroupModelParamValue = "Балки монолитные";
-        private readonly string columnGroupModelParamValue = "Колонны монолитные";
-        private readonly string floorGroupModelParamValue = "Перекрытия монолитные";
-        private readonly string wallGroupModelParamValue = "Стены монолитные";
-        private readonly string rebarGroupModelParamValue = "Детали";
-        private readonly string assemblyGroupModelParamValue = "Сборочные единицы";
+        private readonly string _beamGroupModelParamValue = "Балки монолитные";
+        private readonly string _columnGroupModelParamValue = "Колонны монолитные";
+        private readonly string _floorGroupModelParamValue = "Перекрытия монолитные";
+        private readonly string _wallGroupModelParamValue = "Стены монолитные";
+        private readonly string _rebarGroupModelParamValue = "Детали";
+        private readonly string _assemblyGroupModelParamValue = "Сборочные единицы";
+        private readonly string _selectAll = "(все)";
 
-        private readonly string rebarClassParamName = "_Класс арматуры";
-        private readonly string rebarDiameterParamName = "_Диаметр стержня";
-        private readonly string rebarMassParamName = "_Масса";
-        private readonly string rebarShapeParamName = "_Форма стержня";
-        private readonly string rebarLengthParamName = "_Длина стержня";
-        private readonly string rebarLengthСoefficientParamName = "_Коэф. перепуска";
-        private readonly string rebarCountTypeParamName = "_Тип подсчёта количества";
-        private readonly string rebarCountParamName = "_Количество";
-        private readonly string rebarMarkParamName = "_Марка";
-        private readonly string rebarDefinitionParamName = "_Наименование";
-        private readonly string rebarTypeOfConstructionParamName = "_Тип основы";
-        private readonly string rebarMarkOfConstructionParamName = "_Метка основы";
-        private readonly string rebarConstructionCountParamName = "_Количество основ";
-        private readonly string rebarTypicalFloorParamName = "_Типовой этаж";
-        private readonly string rebarTypicalFloorCountParamName = "_Количество типовых этажей";
-        private readonly string rebarLevelParamName = "_Этаж";
-        private readonly string rebarSectionParamName = "_Секция";
+        private readonly string _rebarClassParamName = "_Класс арматуры";
+        private readonly string _rebarDiameterParamName = "_Диаметр стержня";
+        private readonly string _rebarMassParamName = "_Масса";
+        private readonly string _rebarMassPerLengthParamName = "_Масса на ед. длины";
+        private readonly string _rebarShapeParamName = "_Форма стержня";
+        private readonly string _rebarShapeImageParamName = "_Изображение формы";
+        private readonly string _rebarLengthParamName = "_Длина стержня";
+        private readonly string _rebarLengthСoefficientParamName = "_Коэф. перепуска";
+        private readonly string _rebarCountTypeParamName = "_Тип подсчёта количества";
+        private readonly string _rebarCountParamName = "_Количество";
+        private readonly string _rebarMarkParamName = "_Марка";
+        private readonly string _rebarDefinitionParamName = "_Обозначение";
+        private readonly string _rebarNominationParamName = "_Наименование";
+        private readonly string _rebarTypeOfConstructionParamName = "_Тип основы";
+        private readonly string _rebarMarkOfConstructionParamName = "_Метка основы";
+        private readonly string _rebarConstructionCountParamName = "_Количество основ";
+        private readonly string _rebarTypicalFloorParamName = "_Типовой этаж";
+        private readonly string _rebarTypicalFloorCountParamName = "_Количество типовых этажей";
+        private readonly string _rebarLevelParamName = "_Этаж";
+        private readonly string _rebarSectionParamName = "_Секция";
+        private readonly string _projectNameParamName = "_Наименование объекта";
 
-        private Guid rebarLengthParamGuid = Guid.Empty;
-        private Guid rebarMarkParamGuid = Guid.Empty;
-        private Guid rebarDefinitionParamGuid = Guid.Empty;
-        private Guid rebarTypeOfConstructionParamGuid = Guid.Empty;
-        private Guid rebarMarkOfConstructionParamGuid = Guid.Empty;
-        private Guid rebarConstructionCountParamGuid = Guid.Empty;
-        private Guid rebarTypicalFloorParamGuid = Guid.Empty;
-        private Guid rebarTypicalFloorCountParamGuid = Guid.Empty;
-        private Guid rebarLevelParamGuid = Guid.Empty;
-        private Guid rebarSectionParamGuid = Guid.Empty;
+        private Guid _rebarLengthParamGuid = Guid.Empty;
+        private Guid _rebarMarkParamGuid = Guid.Empty;
+        private Guid _rebarDefinitionParamGuid = Guid.Empty;
+        private Guid _rebarNominationParamGuid = Guid.Empty;
+        private Guid _rebarTypeOfConstructionParamGuid = Guid.Empty;
+        private Guid _rebarMarkOfConstructionParamGuid = Guid.Empty;
+        private Guid _rebarConstructionCountParamGuid = Guid.Empty;
+        private Guid _rebarTypicalFloorParamGuid = Guid.Empty;
+        private Guid _rebarTypicalFloorCountParamGuid = Guid.Empty;
+        private Guid _rebarLevelParamGuid = Guid.Empty;
+        private Guid _rebarSectionParamGuid = Guid.Empty;
+
+        private readonly IDictionary<BarSize, double> _sizes = new Dictionary<BarSize, double>
+        {
+            { new BarSize(0, "_A"), 0 },
+            { new BarSize(0, "_Aокр"), 0 },
+            { new BarSize(1, "_B"), 0 },
+            { new BarSize(1, "_Bокр"), 0 },
+            { new BarSize(2, "_C"), 0 },
+            { new BarSize(2, "_Cокр"), 0 },
+            { new BarSize(3, "_D"), 0 },
+            { new BarSize(3, "_Dокр"), 0 },
+            { new BarSize(4, "_E"), 0 },
+            { new BarSize(4, "_Eокр"), 0 },
+            { new BarSize(5, "_F"), 0 },
+            { new BarSize(6, "_G"), 0 },
+            { new BarSize(7, "_H"), 0 },
+            { new BarSize(8, "_J"), 0 },
+            { new BarSize(9, "_K"), 0 },
+            { new BarSize(10, "_Угол α"), 0 },
+            { new BarSize(11, "_Угол β"), 0 },
+            { new BarSize(12, "_Угол γ"), 0 },
+            { new BarSize(13, "_Угол δ"), 0 },
+        };
 
         private Document _doc;
-        private List<Element> _levels;
+        private IList<Element> _levels;
 
-        public bool IsDataEmpty { get; private set; } = false;
+        public bool IsDataEmpty { get; private set; }
         public string DocumentTitle { get; private set; }
-        public double BarsTotalCount { get; set; }
-        public double RebarAssembliesTotalCount { get; set; }
+        public double BarsTotalCount { get; private set; }
+        public double RebarAssembliesTotalCount { get; private set; }
         public BackgroundWorker BackgroundWorker = new BackgroundWorker();
 
         #region СВОЙСТВА ДЕТАЛЕЙ
@@ -108,11 +138,11 @@ namespace RebarsToExcel.ViewModels
             }
         }
 
-        public List<string> BarSections { get; set; }
-        public List<string> BarConstructionTypes { get; set; }
+        public IList<string> BarSections { get; set; }
+        public IList<string> BarConstructionTypes { get; set; }
 
-        private List<string> _barConstructionMarks;
-        public List<string> BarConstructionMarks
+        private IList<string> _barConstructionMarks;
+        public IList<string> BarConstructionMarks
         {
             get => _barConstructionMarks;
             set
@@ -122,9 +152,30 @@ namespace RebarsToExcel.ViewModels
             }
         }
 
-        public List<RebarLevel> BarLevels { get; set; }
+        public IList<RebarLevel> BarLevels { get; set; }
         public ICollectionView BarsCollectionView { get; set; }
-        public Bar SelectedBar { get; set; }
+
+        private Bar _selectedBar;
+        public Bar SelectedBar 
+        {
+            get => _selectedBar;
+            set
+            {
+                _selectedBar = value;
+                RaisePropertyChanged(nameof(SelectedBar));
+            }
+        }
+
+        public string SelectedBarShapeImagePath
+        {
+            get
+            {
+                if (_selectedBar == null)
+                    return null;
+
+                return _selectedBar.ShapeImagePath;
+            }
+        }
         #endregion
 
         #region СВОЙСТВА СБОРОЧНЫХ ЕДИНИЦ
@@ -177,11 +228,11 @@ namespace RebarsToExcel.ViewModels
             }
         }
         
-        public List<string> RebarAssemblySections { get; set; }
-        public List<string> RebarAssemblyConstructionTypes { get; set; }
+        public IList<string> RebarAssemblySections { get; set; }
+        public IList<string> RebarAssemblyConstructionTypes { get; set; }
 
-        private List<string> _rebarAssemblyConstructionMarks;
-        public List<string> RebarAssemblyConstructionMarks 
+        private IList<string> _rebarAssemblyConstructionMarks;
+        public IList<string> RebarAssemblyConstructionMarks 
         { 
             get => _rebarAssemblyConstructionMarks; 
             set
@@ -191,7 +242,7 @@ namespace RebarsToExcel.ViewModels
             }
         }
 
-        public List<RebarLevel> RebarAssemblyLevels { get; set; }
+        public IList<RebarLevel> RebarAssemblyLevels { get; set; }
         public ICollectionView RebarAssembliesCollectionView { get; set; }
         public RebarAssembly SelectedRebarAssembly { get; set; }
         #endregion
@@ -321,6 +372,7 @@ namespace RebarsToExcel.ViewModels
             SetData();
         }
 
+        #region ЗАПИСЬ ВСЕХ ДАННЫХ
         private void SetData()
         {
             _levels = GetSystemLevels();
@@ -343,45 +395,46 @@ namespace RebarsToExcel.ViewModels
 
             AnalyzeWindow analyzeWindow = new AnalyzeWindow(this);
 
-            BackgroundWorker.DoWork += (object sender, DoWorkEventArgs e) =>
+            BackgroundWorker.DoWork += (sender, e) =>
             {
                 AnalyzeAllBars(allBarElements, typicalFloors);
                 AnalyzeAllRebarAssemblies(allGenericModelElements, allSystemAssemblyElements, typicalFloors);
             };
 
-            BackgroundWorker.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) =>
+            BackgroundWorker.RunWorkerCompleted += (sender, e) =>
             {
                 if (analyzeWindow != null)
                 {
                     analyzeWindow.Close();
                 }
 
-                // Получение данных деталей
+                //Получение деталей
                 var barsData = BarsData.GetData();
                 BarsCollectionView = CollectionViewSource.GetDefaultView(barsData);
 
                 BarLevels = BarsData.GetLevels();
                 BarSections = BarsData.GetSections();
+                BarSections.Insert(0, _selectAll);
                 BarConstructionTypes = BarsData.GetConstructionTypes();
+                BarConstructionTypes.Insert(0, _selectAll);
 
                 SelectedBarSection = BarSections.FirstOrDefault();
                 SelectedBarConstructionType = BarConstructionTypes.FirstOrDefault();
-                SelectedBarConstructionMark = "(все)";
+                SelectedBarConstructionMark = _selectAll;
 
-                // Получение данных сборочных единиц
-
+                //Получение сборочных единиц
                 var rebarAssembliesData = RebarAssembliesData.GetData();
                 RebarAssembliesCollectionView = CollectionViewSource.GetDefaultView(rebarAssembliesData);
 
                 RebarAssemblyLevels = RebarAssembliesData.GetLevels();
                 RebarAssemblySections = RebarAssembliesData.GetSections();
-                RebarAssemblySections.Insert(0, "(все)");
+                RebarAssemblySections.Insert(0, _selectAll);
                 RebarAssemblyConstructionTypes = RebarAssembliesData.GetConstructionTypes();
-                RebarAssemblyConstructionTypes.Insert(0, "(все)");
+                RebarAssemblyConstructionTypes.Insert(0, _selectAll);
 
                 SelectedRebarAssemblySection = RebarAssemblySections.FirstOrDefault();
                 SelectedRebarAssemblyConstructionType = RebarAssemblyConstructionTypes.FirstOrDefault();
-                SelectedRebarAssemblyConstructionMark = "(все)";
+                SelectedRebarAssemblyConstructionMark = _selectAll;
 
                 FilterRebarAssemblyElements();
             };
@@ -390,6 +443,7 @@ namespace RebarsToExcel.ViewModels
 
             BackgroundWorker.RunWorkerAsync();
         }
+        #endregion
 
         #region ВЫБРАТЬ И ОТМЕНИТЬ ВЫБОР
         private void SelectAllBarLevels()
@@ -492,27 +546,27 @@ namespace RebarsToExcel.ViewModels
 
         private List<Element> GetAllBeams(List<Element> constructions)
         {
-            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == beamGroupModelParamValue).ToList();
+            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == _beamGroupModelParamValue).ToList();
         }
 
         private List<Element> GetAllColumns(List<Element> constructions)
         {
-            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == columnGroupModelParamValue).ToList();
+            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == _columnGroupModelParamValue).ToList();
         }
 
         private List<Element> GetAllFloors(List<Element> constructions)
         {
-            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == floorGroupModelParamValue).ToList();
+            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == _floorGroupModelParamValue).ToList();
         }
 
         private List<Element> GetAllWalls(List<Element> constructions)
         {
-            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == wallGroupModelParamValue).ToList();
+            return constructions.Where(x => GetElementType(x).get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString() == _wallGroupModelParamValue).ToList();
         }
         #endregion
 
         #region ПОЛУЧЕНИЕ ТИПОВЫХ ЭТАЖЕЙ
-        private List<TypicalFloor> GetAllTypicalFloors()
+        private IList<TypicalFloor> GetAllTypicalFloors()
         {
             var constructions = GetAllConstructions();
             var beams = GetAllBeams(constructions);
@@ -533,45 +587,45 @@ namespace RebarsToExcel.ViewModels
             return typicalFloors;
         }
 
-        private List<TypicalFloor> GetAllBeamTypicalFloors(List<Element> beams)
+        private IList<TypicalFloor> GetAllBeamTypicalFloors(IList<Element> beams)
         {
-            var beamsWithMultipleTypicalFloors = beams.Where(element => GetTypicalFloorCountParamValue(element) > 1).ToList();
+            var beamsWithMultipleTypicalFloors = beams.Where(element => GetTypicalFloorCount(element) > 1).ToList();
 
-            var beamTypicalLevels = beamsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloorParamValue(element))
-                .Select(element => new TypicalFloor(ConstructionType.Beam, element.Key, element.Select(el => GetLevelParamValue(el)).Distinct(new LevelComparer()).ToList()))
+            var beamTypicalLevels = beamsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloor(element))
+                .Select(element => new TypicalFloor(ConstructionType.Beam, element.Key, element.Select(el => GetLevel(el)).Distinct(new LevelComparer()).ToList()))
                 .ToList();
 
             return beamTypicalLevels;
         }
 
-        private List<TypicalFloor> GetAllColumnTypicalFloors(List<Element> columns)
+        private IList<TypicalFloor> GetAllColumnTypicalFloors(IList<Element> columns)
         {
-            var columnsWithMultipleTypicalFloors = columns.Where(element => GetTypicalFloorCountParamValue(element) > 1).ToList();
+            var columnsWithMultipleTypicalFloors = columns.Where(element => GetTypicalFloorCount(element) > 1).ToList();
 
-            var columnTypicalLevels = columnsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloorParamValue(element))
-                .Select(element => new TypicalFloor(ConstructionType.Column, element.Key, element.Select(el => GetLevelParamValue(el)).Distinct(new LevelComparer()).ToList()))
+            var columnTypicalLevels = columnsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloor(element))
+                .Select(element => new TypicalFloor(ConstructionType.Column, element.Key, element.Select(el => GetLevel(el)).Distinct(new LevelComparer()).ToList()))
                 .ToList();
 
             return columnTypicalLevels;
         }
 
-        private List<TypicalFloor> GetAllFloorTypicalFloors(List<Element> floors)
+        private IList<TypicalFloor> GetAllFloorTypicalFloors(IList<Element> floors)
         {
-            var floorsWithMultipleTypicalFloors = floors.Where(element => GetTypicalFloorCountParamValue(element) > 1).ToList();
+            var floorsWithMultipleTypicalFloors = floors.Where(element => GetTypicalFloorCount(element) > 1).ToList();
 
-            var floorTypicalLevels = floorsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloorParamValue(element))
-                .Select(element => new TypicalFloor(ConstructionType.Floor, element.Key, element.Select(el => GetLevelParamValue(el)).Distinct(new LevelComparer()).ToList()))
+            var floorTypicalLevels = floorsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloor(element))
+                .Select(element => new TypicalFloor(ConstructionType.Floor, element.Key, element.Select(el => GetLevel(el)).Distinct(new LevelComparer()).ToList()))
                 .ToList();
 
             return floorTypicalLevels;
         }
 
-        private List<TypicalFloor> GetAllWallTypicalFloors(List<Element> walls)
+        private IList<TypicalFloor> GetAllWallTypicalFloors(IList<Element> walls)
         {
-            var wallsWithMultipleTypicalFloors = walls.Where(element => GetTypicalFloorCountParamValue(element) > 1).ToList();
+            var wallsWithMultipleTypicalFloors = walls.Where(element => GetTypicalFloorCount(element) > 1).ToList();
 
-            var wallTypicalLevels = wallsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloorParamValue(element))
-                .Select(element => new TypicalFloor(ConstructionType.Wall, element.Key, element.Select(el => GetLevelParamValue(el)).Distinct(new LevelComparer()).ToList()))
+            var wallTypicalLevels = wallsWithMultipleTypicalFloors.GroupBy(element => GetTypicalFloor(element))
+                .Select(element => new TypicalFloor(ConstructionType.Wall, element.Key, element.Select(el => GetLevel(el)).Distinct(new LevelComparer()).ToList()))
                 .ToList();
 
             return wallTypicalLevels;
@@ -579,11 +633,11 @@ namespace RebarsToExcel.ViewModels
         #endregion
 
         #region ПОЛУЧЕНИЕ И АНАЛИЗ АРМАТУРЫ
-        private List<Element> GetAllBars()
+        private IList<Element> GetAllBars()
         {
             ParameterValueProvider groupModelProvider = new ParameterValueProvider(new ElementId(BuiltInParameter.ALL_MODEL_MODEL));
             FilterStringRuleEvaluator groupModelEvaluator = new FilterStringEquals();
-            FilterRule groupModelFilterRule = new FilterStringRule(groupModelProvider, groupModelEvaluator, rebarGroupModelParamValue, false);
+            FilterRule groupModelFilterRule = new FilterStringRule(groupModelProvider, groupModelEvaluator, _rebarGroupModelParamValue, false);
             ElementParameterFilter groupModelFilter = new ElementParameterFilter(groupModelFilterRule);
 
             var rebarsAsClass = new FilteredElementCollector(_doc)
@@ -607,11 +661,11 @@ namespace RebarsToExcel.ViewModels
             return rebarsAsClass;
         }
 
-        private List<Element> GetAllGenericModelElements()
+        private IList<Element> GetAllGenericModelElements()
         {
             ParameterValueProvider provider = new ParameterValueProvider(new ElementId(BuiltInParameter.ALL_MODEL_MODEL));
             FilterStringRuleEvaluator evaluator = new FilterStringEquals();
-            FilterRule groupModelFilterRule = new FilterStringRule(provider, evaluator, assemblyGroupModelParamValue, false);
+            FilterRule groupModelFilterRule = new FilterStringRule(provider, evaluator, _assemblyGroupModelParamValue, false);
             ElementParameterFilter groupModelFilter = new ElementParameterFilter(groupModelFilterRule);
 
             return new FilteredElementCollector(_doc)
@@ -622,11 +676,11 @@ namespace RebarsToExcel.ViewModels
                 .ToList();
         }
 
-        private List<Element> GetAllSystemAssemblyElements()
+        private IList<Element> GetAllSystemAssemblyElements()
         {
             ParameterValueProvider provider = new ParameterValueProvider(new ElementId(BuiltInParameter.ALL_MODEL_MODEL));
             FilterStringRuleEvaluator evaluator = new FilterStringEquals();
-            FilterRule groupModelFilterRule = new FilterStringRule(provider, evaluator, assemblyGroupModelParamValue, false);
+            FilterRule groupModelFilterRule = new FilterStringRule(provider, evaluator, _assemblyGroupModelParamValue, false);
             ElementParameterFilter groupModelFilter = new ElementParameterFilter(groupModelFilterRule);
 
             return new FilteredElementCollector(_doc)
@@ -637,39 +691,48 @@ namespace RebarsToExcel.ViewModels
                 .ToList();
         }
 
-        private void AnalyzeAllBars(IList<Element> allBarElements, List<TypicalFloor> typicalFloors)
+        private void AnalyzeAllBars(IList<Element> allBarElements, IList<TypicalFloor> typicalFloors)
         {
             foreach (var barElement in allBarElements) //Перебираем всю арматуру
             {
                 var elementType = GetElementType(barElement);
 
-                var barClassParamValue = GetClassParamValue(barElement, elementType); //_Класс
-                var barDiameterParamValue = GetDiameterParamValue(barElement, elementType); //_Диаметр
-                var barCountParamValue = GetCountParamValue(barElement, elementType); //_Количество
-                var barConstructionTypeParamValue = GetConstructionTypeParamValue(barElement); //_Тип основы
-                var barCountTypeParamValue = GetCountTypeParamValue(elementType); //_Тип подсчета количества
+                var barClassParamValue = GetClass(barElement, elementType); //_Класс
+                var barDiameterParamValue = GetDiameter(barElement, elementType); //_Диаметр
+                var barConstructionTypeParamValue = GetConstructionType(barElement); //_Тип основы
+                var barCountTypeParamValue = GetCountType(elementType); //_Тип подсчета количества
                 var barLengthСoefficient = GetBarLengthСoefficient(elementType); //_Коэф. перепуска
-                var barLengthParamValue = GetBarLengthParamValue(barElement, barCountTypeParamValue, barCountParamValue, barLengthСoefficient); //_Длина
-                var barMassParamValue = GetBarMassParamValue(barElement, elementType, barCountTypeParamValue, barCountParamValue); //_Масса
-                var barShapeParamValue = barElement.LookupParameter(rebarShapeParamName).AsString(); //_Номер формы
+                var barCountParamValue = GetCount(barElement, elementType, barCountTypeParamValue, barLengthСoefficient); //_Количество
+                var barLengthParamValue = GetBarLength(barElement, barCountTypeParamValue); //_Длина
+                var barMassParamValue = GetBarMass(barElement, elementType, barCountTypeParamValue); //_Масса
+                var barShapeParamValue = barElement.LookupParameter(_rebarShapeParamName).AsString(); //_Номер формы
+                var positionParamValue = GetPosition(barElement); //Марка
 
                 var bar = new Bar(barClassParamValue, barDiameterParamValue, barMassParamValue, barShapeParamValue)
                 {
                     Id = barElement.Id,
-                    Position = GetPositionParamValue(barElement), //Марка
+                    Position = positionParamValue, //Марка
+                    PositionWithShapeMark = string.Concat(positionParamValue, barShapeParamValue == "0.1" || barShapeParamValue == "0.2" ? string.Empty : "*"),
                     Length = barLengthParamValue,
+                    ShapeImagePath = GetShapeImagePath(barElement),
                     CountType = barCountTypeParamValue,
                     CountTypeInfo = GetCountTypeInfo(barCountTypeParamValue),
                     Count = barCountParamValue,
-                    Level = GetLevelParamValue(barElement),
-                    Section = GetSectionParamValue(barElement), //_Секция
+                    Level = GetLevel(barElement),
+                    Section = GetSection(barElement), //_Секция
                     ConstructionType = barConstructionTypeParamValue,
                     ConstructionTypeEnum = GetConstructionTypeEnum(barConstructionTypeParamValue),
-                    ConstructionMark = GetConstructionMarkParamValue(barElement), //_Метка основы
-                    ConstructionCount = GetConstructionCountParamValue(barElement), //_Количество основ
-                    TypicalFloor = GetTypicalFloorParamValue(barElement), //_Типовой этаж
-                    TypicalFloorCount = GetTypicalFloorCountParamValue(barElement), //_Количество типовых этажей
+                    ConstructionMark = GetConstructionMark(barElement), //_Метка основы
+                    ConstructionCount = GetConstructionCount(barElement), //_Количество основ
+                    TypicalFloor = GetTypicalFloor(barElement), //_Типовой этаж
+                    TypicalFloorCount = GetTypicalFloorCount(barElement), //_Количество типовых этажей
+                    DiameterClassLengthInfo = barCountTypeParamValue == 2? $"⌀{barDiameterParamValue} {barClassParamValue}" : $"⌀{barDiameterParamValue} {barClassParamValue}, L={barLengthParamValue}",
                 };
+
+                if (bar.Shape != "0.1" && bar.Shape != "0.2")
+                {
+                    SetBarSizeParameters(ref bar, barElement);
+                }
 
                 BarsData.AddBar(bar);
                 BarsProgressCounter++;
@@ -677,36 +740,38 @@ namespace RebarsToExcel.ViewModels
 
             BarsData.AnalyzeDataByConstructionCount();
             BarsData.AnalyzeDataByTypicalFloorCount(typicalFloors);
+
+            ShapeImagesData.SaveToFolder();
         }
 
-        private void AnalyzeAllRebarAssemblies(IList<Element> allGenericModelElements, IList<Element> allSystemAssemblyElements, List<TypicalFloor> typicalFloors)
+        private void AnalyzeAllRebarAssemblies(IList<Element> allGenericModelElements, IList<Element> allSystemAssemblyElements, IList<TypicalFloor> typicalFloors)
         {
             foreach (var genericModelElement in allGenericModelElements) //Перебираем все Обобщенные модели
             {
                 var elementType = GetElementType(genericModelElement);
-                var descriptionTypeParamValue = GetDescriptionParamValue(elementType); //Описание
-                var globalModelTypeParamValue = GetGroupModelParamValue(elementType); //Группа модели
+                var descriptionTypeParamValue = GetDescription(elementType); //Описание
+                var globalModelTypeParamValue = GetGroupModel(elementType); //Группа модели
 
-                var markParamValue = GetMarkParamValue(elementType); //Маркировка типоразмера, _Марка или _Наименование
-                var massParamValue = GetMassParamValue(genericModelElement, elementType); //_Масса
-                var constructionTypeParamValue = GetConstructionTypeParamValue(genericModelElement); //_Тип основы
+                var markParamValue = GetMark(elementType); //Маркировка типоразмера, _Марка или _Наименование
+                var massParamValue = GetMass(genericModelElement, elementType); //_Масса
+                var constructionTypeParamValue = GetConstructionType(genericModelElement); //_Тип основы
 
                 var rebarAssembly = new RebarAssembly(descriptionTypeParamValue, markParamValue, globalModelTypeParamValue, massParamValue)
                 {
                     Id = genericModelElement.Id,
-                    Definition = GetDefinitionParamValue(genericModelElement), //_Обозначение
+                    Definition = GetDefinition(elementType), //_Обозначение
                     ConstructionType = constructionTypeParamValue,
                     ConstructionTypeEnum = GetConstructionTypeEnum(constructionTypeParamValue),
-                    ConstructionMark = GetConstructionMarkParamValue(genericModelElement), //_Метка основы
-                    ConstructionCount = GetConstructionCountParamValue(genericModelElement), //_Количество основ
-                    TypicalFloor = GetTypicalFloorParamValue(genericModelElement), //_Типовой этаж
-                    TypicalFloorCount = GetTypicalFloorCountParamValue(genericModelElement), //_Количество типовых этажей
-                    Level = GetLevelParamValue(genericModelElement), //_Этаж
-                    Section = GetSectionParamValue(genericModelElement) //_Секция
+                    ConstructionMark = GetConstructionMark(genericModelElement), //_Метка основы
+                    ConstructionCount = GetConstructionCount(genericModelElement), //_Количество основ
+                    TypicalFloor = GetTypicalFloor(genericModelElement), //_Типовой этаж
+                    TypicalFloorCount = GetTypicalFloorCount(genericModelElement), //_Количество типовых этажей
+                    Level = GetLevel(genericModelElement), //_Этаж
+                    Section = GetSection(genericModelElement) //_Секция
                 };
 
                 var allRebarIdsOfAsssembly = (genericModelElement as FamilyInstance).GetSubComponentIds();
-                AddAllRebarsOfAssemblyToRebarAssembly(elementType, rebarAssembly, allRebarIdsOfAsssembly); //Добавляем всю вложенную арматуру семейства в rebarAssembly
+                AddAllRebarsOfAssemblyToRebarAssembly(rebarAssembly, allRebarIdsOfAsssembly); //Добавляем всю вложенную арматуру семейства в rebarAssembly
 
                 RebarAssembliesData.AddRebarAssembly(rebarAssembly);
                 RebarAssembliesProgressCounter++;
@@ -715,29 +780,29 @@ namespace RebarsToExcel.ViewModels
             foreach (var assemblyElement in allSystemAssemblyElements) //Перебираем все Сборки
             {
                 var elementType = GetElementType(assemblyElement);
-                var descriptionTypeParamValue = GetDescriptionParamValue(elementType); //Описание
-                var globalModelTypeParamValue = GetGroupModelParamValue(elementType); //Группа модели
+                var descriptionTypeParamValue = GetDescription(elementType); //Описание
+                var globalModelTypeParamValue = GetGroupModel(elementType); //Группа модели
 
-                var markParamValue = GetMarkParamValue(elementType); //Маркировка типоразмера или _Марка
-                var massParamValue = GetMassParamValue(assemblyElement, elementType); //_Масса
-                var constructionTypeParamValue = GetConstructionTypeParamValue(assemblyElement); //_Тип основы
+                var markParamValue = GetMark(elementType); //Маркировка типоразмера или _Марка
+                var massParamValue = GetMass(assemblyElement, elementType); //_Масса
+                var constructionTypeParamValue = GetConstructionType(assemblyElement); //_Тип основы
 
                 var rebarAssembly = new RebarAssembly(descriptionTypeParamValue, markParamValue, globalModelTypeParamValue, massParamValue)
                 {
                     Id = assemblyElement.Id,
-                    Definition = GetDefinitionParamValue(assemblyElement), //_Обозначение
+                    Definition = GetDefinition(elementType), //_Обозначение
                     ConstructionType = constructionTypeParamValue,
                     ConstructionTypeEnum = GetConstructionTypeEnum(constructionTypeParamValue),
-                    ConstructionMark = GetConstructionMarkParamValue(assemblyElement), //_Метка основы
-                    ConstructionCount = GetConstructionCountParamValue(assemblyElement), //_Количество основ
-                    TypicalFloor = GetTypicalFloorParamValue(assemblyElement), //_Типовой этаж
-                    TypicalFloorCount = GetTypicalFloorCountParamValue(assemblyElement), //_Количество типовых этажей
-                    Level = GetLevelParamValue(assemblyElement), //_Этаж
-                    Section = GetSectionParamValue(assemblyElement) //_Секция
+                    ConstructionMark = GetConstructionMark(assemblyElement), //_Метка основы
+                    ConstructionCount = GetConstructionCount(assemblyElement), //_Количество основ
+                    TypicalFloor = GetTypicalFloor(assemblyElement), //_Типовой этаж
+                    TypicalFloorCount = GetTypicalFloorCount(assemblyElement), //_Количество типовых этажей
+                    Level = GetLevel(assemblyElement), //_Этаж
+                    Section = GetSection(assemblyElement) //_Секция
                 };
 
                 var allRebarIdsOfAsssembly = (assemblyElement as AssemblyInstance).GetMemberIds();
-                AddAllRebarsOfAssemblyToRebarAssembly(elementType, rebarAssembly, allRebarIdsOfAsssembly); //Добавляем всю вложенную арматуру семейства в rebarAssembly
+                AddAllRebarsOfAssemblyToRebarAssembly(rebarAssembly, allRebarIdsOfAsssembly); //Добавляем всю вложенную арматуру семейства в rebarAssembly
 
                 RebarAssembliesData.AddRebarAssembly(rebarAssembly);
                 RebarAssembliesProgressCounter++;
@@ -750,17 +815,17 @@ namespace RebarsToExcel.ViewModels
         #endregion
 
         #region ПОЛУЧЕНИЕ ПАРАМЕТРОВ
-        private string GetDescriptionParamValue(Element elementType)
+        private string GetDescription(Element elementType)
         {
             return elementType.get_Parameter(BuiltInParameter.ALL_MODEL_DESCRIPTION)?.AsString();
         }
 
-        private string GetGroupModelParamValue(Element elementType)
+        private string GetGroupModel(Element elementType)
         {
             return elementType.get_Parameter(BuiltInParameter.ALL_MODEL_MODEL)?.AsString();
         }
 
-        private string GetPositionParamValue(Element element)
+        private string GetPosition(Element element)
         {
             var markParam = element.get_Parameter(BuiltInParameter.ALL_MODEL_MARK);
 
@@ -770,9 +835,9 @@ namespace RebarsToExcel.ViewModels
             return string.Empty;
         }
 
-        private int GetCountTypeParamValue(Element elementType)
+        private int GetCountType(Element elementType)
         {
-            var countTypeParam = elementType.LookupParameter(rebarCountTypeParamName);
+            var countTypeParam = elementType.LookupParameter(_rebarCountTypeParamName);
 
             if (countTypeParam != null)
                 return countTypeParam.AsInteger();
@@ -780,27 +845,27 @@ namespace RebarsToExcel.ViewModels
             return 0;
         }
 
-        private string GetMarkParamValue(Element elementType)
+        private string GetMark(Element elementType)
         {
             // Маркировка типоразмера
             var markSystemTypeParam = elementType.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_MARK);
 
             // _Марка
-            if (rebarMarkParamGuid == Guid.Empty)
-                rebarMarkParamGuid = elementType.LookupParameter(rebarMarkParamName) == null? Guid.Empty : elementType.LookupParameter(rebarMarkParamName).GUID;
+            if (_rebarMarkParamGuid == Guid.Empty)
+                _rebarMarkParamGuid = elementType.LookupParameter(_rebarMarkParamName) == null? Guid.Empty : elementType.LookupParameter(_rebarMarkParamName).GUID;
 
-            var markSharedTypeParam = elementType.get_Parameter(rebarMarkParamGuid);
+            var markSharedTypeParam = elementType.get_Parameter(_rebarMarkParamGuid);
 
             // _Наименование
-            if (rebarDefinitionParamGuid == Guid.Empty)
-                rebarDefinitionParamGuid = elementType.LookupParameter(rebarDefinitionParamName).GUID;
-            var markSharedDefinitionParam = elementType.get_Parameter(rebarDefinitionParamGuid);
+            if (_rebarNominationParamGuid == Guid.Empty)
+                _rebarNominationParamGuid = elementType.LookupParameter(_rebarNominationParamName).GUID;
+            var markSharedNominationParam = elementType.get_Parameter(_rebarNominationParamGuid);
 
             if (markSharedTypeParam != null && markSharedTypeParam?.AsString() != string.Empty)
                 return markSharedTypeParam.AsString();
 
-            if (markSharedDefinitionParam != null && markSharedDefinitionParam?.AsString() != string.Empty)
-                return markSharedDefinitionParam.AsString();
+            if (markSharedNominationParam != null && markSharedNominationParam?.AsString() != string.Empty)
+                return markSharedNominationParam.AsString();
 
             if (markSystemTypeParam != null && markSystemTypeParam?.AsString() != string.Empty)
                 return markSystemTypeParam.AsString();
@@ -808,11 +873,30 @@ namespace RebarsToExcel.ViewModels
             return string.Empty;
         }
 
-        private string GetConstructionTypeParamValue(Element element)
+        private string GetShapeImagePath(Element element)
         {
-            if (rebarTypeOfConstructionParamGuid == Guid.Empty) 
-                rebarTypeOfConstructionParamGuid = element.LookupParameter(rebarTypeOfConstructionParamName).GUID;
-            var typeOfConstructionParamValue = element.get_Parameter(rebarTypeOfConstructionParamGuid)?.AsString();
+            var shapeImageSystemParam = element.get_Parameter(BuiltInParameter.ALL_MODEL_IMAGE);
+
+            if (shapeImageSystemParam == null)
+            {
+                return null;
+            }
+
+            var shapeImageType = _doc.GetElement(shapeImageSystemParam.AsElementId()) as ImageType;
+            if (shapeImageType == null)
+            {
+                return null;
+            }
+
+            ShapeImagesData.AddImageType(shapeImageType);
+            return shapeImageType.Path;
+        }
+
+        private string GetConstructionType(Element element)
+        {
+            if (_rebarTypeOfConstructionParamGuid == Guid.Empty) 
+                _rebarTypeOfConstructionParamGuid = element.LookupParameter(_rebarTypeOfConstructionParamName).GUID;
+            var typeOfConstructionParamValue = element.get_Parameter(_rebarTypeOfConstructionParamGuid)?.AsString();
 
             var result = "(нет)";
 
@@ -836,11 +920,11 @@ namespace RebarsToExcel.ViewModels
             }
         }
 
-        private string GetConstructionMarkParamValue(Element element)
+        private string GetConstructionMark(Element element)
         {
-            if (rebarMarkOfConstructionParamGuid == Guid.Empty) 
-                rebarMarkOfConstructionParamGuid = element.LookupParameter(rebarMarkOfConstructionParamName).GUID;
-            var markOfConstructionParamValue = element.get_Parameter(rebarMarkOfConstructionParamGuid)?.AsString();
+            if (_rebarMarkOfConstructionParamGuid == Guid.Empty) 
+                _rebarMarkOfConstructionParamGuid = element.LookupParameter(_rebarMarkOfConstructionParamName).GUID;
+            var markOfConstructionParamValue = element.get_Parameter(_rebarMarkOfConstructionParamGuid)?.AsString();
 
             var result = "(нет)";
 
@@ -850,35 +934,35 @@ namespace RebarsToExcel.ViewModels
             return result;
         }
 
-        private int GetConstructionCountParamValue(Element element)
+        private int GetConstructionCount(Element element)
         {
-            if (rebarConstructionCountParamGuid == Guid.Empty) 
-                rebarConstructionCountParamGuid = element.LookupParameter(rebarConstructionCountParamName).GUID;
+            if (_rebarConstructionCountParamGuid == Guid.Empty) 
+                _rebarConstructionCountParamGuid = element.LookupParameter(_rebarConstructionCountParamName).GUID;
 
-            return element.get_Parameter(rebarConstructionCountParamGuid).AsInteger();
+            return element.get_Parameter(_rebarConstructionCountParamGuid).AsInteger();
         }
 
-        private int GetTypicalFloorParamValue(Element element)
+        private int GetTypicalFloor(Element element)
         {
-            if (rebarTypicalFloorParamGuid == Guid.Empty) 
-                rebarTypicalFloorParamGuid = element.LookupParameter(rebarTypicalFloorParamName).GUID;
+            if (_rebarTypicalFloorParamGuid == Guid.Empty) 
+                _rebarTypicalFloorParamGuid = element.LookupParameter(_rebarTypicalFloorParamName).GUID;
 
-            return element.get_Parameter(rebarTypicalFloorParamGuid).AsInteger();
+            return element.get_Parameter(_rebarTypicalFloorParamGuid).AsInteger();
         }
 
-        private int GetTypicalFloorCountParamValue(Element element)
+        private int GetTypicalFloorCount(Element element)
         {
-            if (rebarTypicalFloorCountParamGuid == Guid.Empty) 
-                rebarTypicalFloorCountParamGuid = element.LookupParameter(rebarTypicalFloorCountParamName).GUID;
+            if (_rebarTypicalFloorCountParamGuid == Guid.Empty) 
+                _rebarTypicalFloorCountParamGuid = element.LookupParameter(_rebarTypicalFloorCountParamName).GUID;
 
-            return element.get_Parameter(rebarTypicalFloorCountParamGuid).AsInteger();
+            return element.get_Parameter(_rebarTypicalFloorCountParamGuid).AsInteger();
         }
 
-        private RebarLevel GetLevelParamValue(Element element)
+        private RebarLevel GetLevel(Element element)
         {
-            if (rebarLevelParamGuid == Guid.Empty)
-                rebarLevelParamGuid = element.LookupParameter(rebarLevelParamName).GUID;
-            var levelParamValue = element.get_Parameter(rebarLevelParamGuid)?.AsString();
+            if (_rebarLevelParamGuid == Guid.Empty)
+                _rebarLevelParamGuid = element.LookupParameter(_rebarLevelParamName).GUID;
+            var levelParamValue = element.get_Parameter(_rebarLevelParamGuid)?.AsString();
 
             if (levelParamValue != null && levelParamValue != string.Empty)
             {
@@ -891,12 +975,12 @@ namespace RebarsToExcel.ViewModels
 
         private double GetLevelElevation(string levelParamValue)
         {
-            var level = _levels.FirstOrDefault(l => l.LookupParameter(rebarLevelParamName)?.AsString() == levelParamValue);
+            var level = _levels.FirstOrDefault(l => l.LookupParameter(_rebarLevelParamName)?.AsString() == levelParamValue);
             var levelElevation = (level as Level).Elevation;
             return levelElevation;
         }
 
-        private List<Element> GetSystemLevels()
+        private IList<Element> GetSystemLevels()
         {
             return new FilteredElementCollector(_doc)
                 .OfCategory(BuiltInCategory.OST_Levels)
@@ -905,14 +989,14 @@ namespace RebarsToExcel.ViewModels
                 .ToList();
         }
 
-        private string GetSectionParamValue(Element element)
+        private string GetSection(Element element)
         {
-            if (rebarSectionParamGuid == Guid.Empty)
+            if (_rebarSectionParamGuid == Guid.Empty)
             {
-                if (element.LookupParameter(rebarSectionParamName) != null)
-                    rebarSectionParamGuid = element.LookupParameter(rebarSectionParamName).GUID;
+                if (element.LookupParameter(_rebarSectionParamName) != null)
+                    _rebarSectionParamGuid = element.LookupParameter(_rebarSectionParamName).GUID;
             }
-            var sectionParamValue = element.get_Parameter(rebarSectionParamGuid)?.AsString();
+            var sectionParamValue = element.get_Parameter(_rebarSectionParamGuid)?.AsString();
 
             var result = "(нет)";
 
@@ -922,11 +1006,11 @@ namespace RebarsToExcel.ViewModels
             return result;
         }
 
-        private string GetDefinitionParamValue(Element elementType)
+        private string GetDefinition(Element elementType)
         {
-            if (rebarDefinitionParamGuid == Guid.Empty) 
-                rebarDefinitionParamGuid = elementType.LookupParameter(rebarDefinitionParamName).GUID;
-            var markDefinitionParam = elementType.get_Parameter(rebarDefinitionParamGuid);
+            if (_rebarDefinitionParamGuid == Guid.Empty)
+                _rebarDefinitionParamGuid = elementType.LookupParameter(_rebarDefinitionParamName).GUID;
+            var markDefinitionParam = elementType.get_Parameter(_rebarDefinitionParamGuid);
 
             if (markDefinitionParam != null)
                 return markDefinitionParam.AsString();
@@ -934,10 +1018,10 @@ namespace RebarsToExcel.ViewModels
             return string.Empty;
         }
 
-        private string GetClassParamValue(Element element, Element elementType)
+        private string GetClass(Element element, Element elementType)
         {
-            var classTypeParam = elementType.LookupParameter(rebarClassParamName);
-            var classElementParam = element.LookupParameter(rebarClassParamName);
+            var classTypeParam = elementType.LookupParameter(_rebarClassParamName);
+            var classElementParam = element.LookupParameter(_rebarClassParamName);
 
             if (classTypeParam != null)
                 return classTypeParam.AsString();
@@ -948,35 +1032,37 @@ namespace RebarsToExcel.ViewModels
             return string.Empty;
         }
 
-        private double GetBarMassParamValue(Element element, Element elementType, int countTypeParamValue, int barCountParamValue)
+        private double GetBarMass(Element element, Element elementType, int countTypeParamValue)
         {
-            var massTypeParamValue = elementType.LookupParameter(rebarMassParamName)?.AsDouble();
-            var massElementParamValue = element.LookupParameter(rebarMassParamName)?.AsDouble();
+            var massTypeParam = elementType.LookupParameter(_rebarMassParamName);
+            var massElementParam = element.LookupParameter(_rebarMassParamName);
+            var massPerLengthTypeParam = elementType.LookupParameter(_rebarMassPerLengthParamName);
+            var massPerLengthElementParam = element.LookupParameter(_rebarMassPerLengthParamName);
 
             if (countTypeParamValue == 2)
             {
-                if (massTypeParamValue != null)
-                    return barCountParamValue * Math.Round((double)massTypeParamValue, 2);
+                if (massPerLengthTypeParam != null)
+                    return UnitUtils.ConvertFromInternalUnits(massPerLengthTypeParam.AsDouble(), massPerLengthTypeParam.DisplayUnitType);
 
-                if (massElementParamValue != null)
-                    return barCountParamValue * Math.Round((double)massElementParamValue, 2);
+                if (massPerLengthElementParam != null)
+                    return UnitUtils.ConvertFromInternalUnits(massPerLengthElementParam.AsDouble(), massPerLengthElementParam.DisplayUnitType);
 
                 return 0;
             }
             
-            if (massTypeParamValue != null)
-                return Math.Round((double)massTypeParamValue, 2);
+            if (massTypeParam != null)
+                return Math.Round(massTypeParam.AsDouble(), 2);
 
-            if (massElementParamValue != null)
-                return Math.Round((double)massElementParamValue, 2);
+            if (massElementParam != null)
+                return Math.Round(massElementParam.AsDouble(), 2);
 
             return 0;
         }
 
-        private double GetMassParamValue(Element element, Element elementType)
+        private double GetMass(Element element, Element elementType)
         {
-            var massTypeParamValue = elementType.LookupParameter(rebarMassParamName)?.AsDouble();
-            var massElementParamValue = element.LookupParameter(rebarMassParamName)?.AsDouble();
+            var massTypeParamValue = elementType.LookupParameter(_rebarMassParamName)?.AsDouble();
+            var massElementParamValue = element.LookupParameter(_rebarMassParamName)?.AsDouble();
 
             if (massTypeParamValue != null)
                 return Math.Round((double)massTypeParamValue, 2);
@@ -989,7 +1075,7 @@ namespace RebarsToExcel.ViewModels
 
         private double GetBarLengthСoefficient(Element elementType)
         {
-            var lengthCoefficientParamValue = elementType.LookupParameter(rebarLengthСoefficientParamName)?.AsDouble();
+            var lengthCoefficientParamValue = elementType.LookupParameter(_rebarLengthСoefficientParamName)?.AsDouble();
 
             if (lengthCoefficientParamValue != null)
                 return (double)lengthCoefficientParamValue;
@@ -997,18 +1083,15 @@ namespace RebarsToExcel.ViewModels
             return 1;
         }
 
-        private double GetBarLengthParamValue(Element element, int countTypeParamValue, int barCountParamValue, double barLengthСoefficient)
+        private double GetBarLength(Element element, int countTypeParamValue)
         {
-            if (rebarLengthParamGuid == Guid.Empty)
-                rebarLengthParamGuid = element.LookupParameter(rebarLengthParamName).GUID;
-            var lengthParam = element.get_Parameter(rebarLengthParamGuid);
+            if (_rebarLengthParamGuid == Guid.Empty)
+                _rebarLengthParamGuid = element.LookupParameter(_rebarLengthParamName).GUID;
+            var lengthParam = element.get_Parameter(_rebarLengthParamGuid);
 
             if (countTypeParamValue == 2)
             {
-                if (lengthParam != null)
-                    return UnitUtils.ConvertFromInternalUnits(lengthParam.AsDouble(), lengthParam.DisplayUnitType) * barCountParamValue * barLengthСoefficient;
-
-                return 0;
+                return 1;
             }
 
             if (lengthParam != null)
@@ -1019,9 +1102,9 @@ namespace RebarsToExcel.ViewModels
 
         private double GetLengthParamValue(Element element)
         {
-            if (rebarLengthParamGuid == Guid.Empty) 
-                rebarLengthParamGuid = element.LookupParameter(rebarLengthParamName).GUID; 
-            var lengthParam = element.get_Parameter(rebarLengthParamGuid);
+            if (_rebarLengthParamGuid == Guid.Empty) 
+                _rebarLengthParamGuid = element.LookupParameter(_rebarLengthParamName).GUID; 
+            var lengthParam = element.get_Parameter(_rebarLengthParamGuid);
 
             if (lengthParam != null)
                 return UnitUtils.ConvertFromInternalUnits(lengthParam.AsDouble(), lengthParam.DisplayUnitType);
@@ -1029,11 +1112,36 @@ namespace RebarsToExcel.ViewModels
             return 0;
         }
 
-        private int GetCountParamValue(Element element, Element elementType)
+        private double GetCount(Element element, Element elementType, int countTypeParamValue, double barLengthСoefficient)
         {
-            var countTypeSharedParam = elementType.LookupParameter(rebarCountParamName);
-            var countElementSharedParam = element.LookupParameter(rebarCountParamName);
+            var countTypeSharedParam = elementType.LookupParameter(_rebarCountParamName);
+            var countElementSharedParam = element.LookupParameter(_rebarCountParamName);
             var countSystemParam = element.get_Parameter(BuiltInParameter.REBAR_ELEM_QUANTITY_OF_BARS);
+
+            if (countTypeParamValue == 2)
+            {
+                if (_rebarLengthParamGuid == Guid.Empty)
+                    _rebarLengthParamGuid = element.LookupParameter(_rebarLengthParamName).GUID;
+                var lengthParam = element.get_Parameter(_rebarLengthParamGuid);
+
+                if (lengthParam != null)
+                {
+                    int barCountParamValue = 1;
+
+                    if (countSystemParam != null)
+                        barCountParamValue = countSystemParam.AsInteger();
+
+                    else if (countElementSharedParam != null)
+                        barCountParamValue = countElementSharedParam.AsInteger();
+
+                    else if (countTypeSharedParam != null)
+                        barCountParamValue = countTypeSharedParam.AsInteger();
+
+                    return UnitUtils.ConvertFromInternalUnits(lengthParam.AsDouble() / 1000, lengthParam.DisplayUnitType) * barCountParamValue * barLengthСoefficient;
+                }
+
+                return 0;
+            }
 
             if (countSystemParam != null)
                 return countSystemParam.AsInteger();
@@ -1047,10 +1155,10 @@ namespace RebarsToExcel.ViewModels
             return 0;
         }
 
-        private double GetDiameterParamValue(Element element, Element elementType)
+        private double GetDiameter(Element element, Element elementType)
         {
-            var diameterTypeParam = elementType.LookupParameter(rebarDiameterParamName);
-            var diameterElementParam = element.LookupParameter(rebarDiameterParamName);
+            var diameterTypeParam = elementType.LookupParameter(_rebarDiameterParamName);
+            var diameterElementParam = element.LookupParameter(_rebarDiameterParamName);
 
             if (diameterTypeParam != null)
                 return UnitUtils.ConvertFromInternalUnits(diameterTypeParam.AsDouble(), diameterTypeParam.DisplayUnitType);
@@ -1061,29 +1169,68 @@ namespace RebarsToExcel.ViewModels
             return 0;
         }
 
+        private void SetBarSizeParameters(ref Bar bar, Element barElement)
+        {
+            var previousSize = _sizes.First();
+
+            foreach (var size in _sizes)
+            {
+                var sizeParam = barElement.LookupParameter(size.Key.Name);
+                var previousSizeParam = barElement.LookupParameter(previousSize.Key.Name);
+
+                if (sizeParam != null)
+                {
+                    if (previousSizeParam != null && previousSize.Key.Id == size.Key.Id)
+                    {
+                        var tempSizeMax = Math.Max(sizeParam.AsDouble(), previousSizeParam.AsDouble());
+
+                        bar.Sizes[size.Key] = 0;
+                        bar.Sizes[previousSize.Key] = UnitUtils.ConvertFromInternalUnits(tempSizeMax, sizeParam.DisplayUnitType);
+                    }
+                    else if (previousSize.Key.Id == size.Key.Id)
+                    {
+                        bar.Sizes[size.Key] = 0;
+                        bar.Sizes[previousSize.Key] = UnitUtils.ConvertFromInternalUnits(sizeParam.AsDouble(), sizeParam.DisplayUnitType);
+                    }
+                    else
+                    {
+                        bar.Sizes[size.Key] = UnitUtils.ConvertFromInternalUnits(sizeParam.AsDouble(), sizeParam.DisplayUnitType);
+                    }
+                }
+                else
+                {
+                    bar.Sizes[size.Key] = 0;
+                }
+
+                previousSize = size;
+            }
+        }
+
         private Element GetElementType(Element element)
         {
             var elementTypeId = element.GetTypeId();
             return _doc.GetElement(elementTypeId);
         }
 
-        private void AddAllRebarsOfAssemblyToRebarAssembly(Element elementType, RebarAssembly rebarAssembly, ICollection<ElementId> allRebarIdsOfAsssembly)
+        private void AddAllRebarsOfAssemblyToRebarAssembly(RebarAssembly rebarAssembly, ICollection<ElementId> allRebarIdsOfAsssembly)
         {
             foreach (var rebarId in allRebarIdsOfAsssembly)
             {
                 var rebarElement = _doc.GetElement(rebarId);
+                var elementType = GetElementType(rebarElement);
 
                 if (rebarElement.Category.Name == "Несущая арматура")
                 {
-                    var rebarClassParamValue = GetClassParamValue(rebarElement, elementType);
-                    var rebarDiameterParamValue = GetDiameterParamValue(rebarElement, elementType);
-                    var rebarMassParamValue = GetMassParamValue(rebarElement, elementType);
-                    var rebarShapeParamValue = rebarElement.LookupParameter(rebarShapeParamName).AsString();
+                    var rebarClassParamValue = GetClass(rebarElement, elementType);
+                    var rebarDiameterParamValue = GetDiameter(rebarElement, elementType);
+                    var barCountTypeParamValue = 1;
+                    var rebarMassParamValue = GetMass(rebarElement, elementType);
+                    var rebarShapeParamValue = rebarElement.LookupParameter(_rebarShapeParamName).AsString();
 
                     var rebar = new Rebar(rebarClassParamValue, rebarDiameterParamValue, rebarMassParamValue, rebarShapeParamValue)
                     {
                         Length = GetLengthParamValue(rebarElement),
-                        Count = GetCountParamValue(rebarElement, elementType),
+                        Count = GetCount(rebarElement, elementType, barCountTypeParamValue, 1),
                         TypeOfAssembly = rebarAssembly.Type,
                         MarkOfAssembly = rebarAssembly.Mark
                     };
@@ -1099,7 +1246,7 @@ namespace RebarsToExcel.ViewModels
                 return "шт.";
 
             if (countType == 2)
-                return "м.п";
+                return "м.п.";
 
             return "(не задан)";
         }
@@ -1107,22 +1254,27 @@ namespace RebarsToExcel.ViewModels
 
         private void ExportToExcel()
         {
-            string fileName = _doc.Title + "_Сборочные единицы.xlsx";
+            ProjectData.FileName = _doc.Title + "_Арматура.xlsx";
+            var filteredBars = BarsCollectionView.Cast<Bar>().ToList();
+
             var filteredRebarAssemblies = RebarAssembliesCollectionView.Cast<RebarAssembly>()
                 .Where(rebarAssembly => rebarAssembly.Type.Contains("Каркас") || rebarAssembly.Type.Contains("Сетка"))
                 .ToList();
 
-            if (filteredRebarAssemblies.Any())
+            if (filteredBars.Any() || filteredRebarAssemblies.Any())
             {
-                FileManager.Save(filteredRebarAssemblies, fileName);
+                ProjectData.ProjectCode = _doc.ProjectInformation.Number;
+                ProjectData.ProjectName = _doc.ProjectInformation.LookupParameter(_projectNameParamName)?.AsString();
+                ProjectData.BuildingName = _doc.ProjectInformation.BuildingName;
+
+                var tableManager = new TableManager(filteredBars, filteredRebarAssemblies);
+                tableManager.CreateTable();
             }
             else
             {
                 WarningWindow errorWindow = new WarningWindow("ПРЕДУПРЕЖДЕНИЕ", "Данные для экспорта отсутствуют");
                 errorWindow.ShowDialog();
             }
-
-
         }
     }
 }

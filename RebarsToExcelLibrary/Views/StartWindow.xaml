@@ -19,7 +19,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/AtomStyleLibrary;component/Dictionaries/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            
+
             <Style TargetType="DataGridRow">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding Path=ElementType}" Value="Virtual">
@@ -48,7 +48,7 @@
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-            
+
             <Style x:Key="FocusVisual">
                 <Setter Property="Control.Template">
                     <Setter.Value>
@@ -83,7 +83,7 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type TabItem}">
                             <Grid x:Name="templateRoot" SnapsToDevicePixels="true" Margin="0,0,0,10">
-                                <Border x:Name="mainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0,0,0,0" Margin="0">
+                                <Border x:Name="mainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="0" Margin="0">
                                     <Border x:Name="innerBorder" Background="{StaticResource TabItem.Selected.Background}" BorderBrush="{StaticResource TabItem.Selected.Border}" BorderThickness="0,0,0,0.5" Margin="0,0,0,-2" Opacity="0"/>
                                 </Border>
                                 <ContentPresenter x:Name="contentPresenter" ContentSource="Header" Focusable="False" HorizontalAlignment="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
@@ -178,7 +178,10 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
                             <RowDefinition Height="5"/>
-                            <RowDefinition Height="*" MinHeight="200"/>
+                            <RowDefinition Height="2*" MinHeight="200"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="5"/>
+                            <RowDefinition Height="*" MinHeight="100"/>
                             <RowDefinition Height="20"/>
                             <RowDefinition Height="40"/>
                         </Grid.RowDefinitions>
@@ -192,7 +195,7 @@
                             <TextBlock Text="ЭТАЖ"  Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource TitleFont}" />
                         </StackPanel>
 
-                        <ListView x:Name="barLevelsListView" Grid.Row="2" Grid.Column="0" BorderThickness="0.5"
+                        <ListView x:Name="barLevelsListView" Grid.Row="2" Grid.Column="0" BorderThickness="0.5" Margin="0,0,0,20"
                                     ItemsSource="{Binding BarLevels}"
                                     Style="{StaticResource AtomStyleListViewWithCheckboxes}"
                                     ItemContainerStyle="{StaticResource AtomStyleListViewItemWithCheckboxes}">
@@ -203,8 +206,8 @@
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>
-                        
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+
+                        <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
                             <TextBlock Text="СЕКЦИЯ" Margin="5,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
                             <ComboBox x:Name="barSectionsComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center"
                                       ItemsSource="{Binding BarSections}" 
@@ -221,6 +224,9 @@
                                       SelectedItem="{Binding SelectedBarConstructionMark, Mode=TwoWay}"/>
                         </StackPanel>
 
+                        <Button Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                Style="{StaticResource AtomQuestionMarkStyle}" Click="helpButton_Click"/>
+                        
                         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical">
                             <Button x:Name="selectAllBarLevelsButton" Margin="0,15,0,0" Style="{StaticResource AtomSelectAllButtonStyle}"
                                     Command="{Binding SelectAllBarLevelsCommand}"/>
@@ -230,16 +236,17 @@
                                     Click="selectInModelBarButton_Click"/>
                         </StackPanel>
 
-                        <DataGrid x:Name="barsDataGrid" Grid.Row="2" Grid.Column="2" GridLinesVisibility="None" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                        <DataGrid x:Name="barsDataGrid" Grid.Row="2" Grid.Column="3" Grid.RowSpan="4" GridLinesVisibility="None" SelectionMode="Single" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                                   ItemsSource="{Binding BarsCollectionView}"
-                                  SelectedItem="{Binding SelectedBar, Mode=TwoWay}">
+                                  SelectedItem="{Binding SelectedBar, Mode=TwoWay}"
+                                  IsSynchronizedWithCurrentItem="True"
+                                  SelectionChanged="barsDataGrid_SelectionChanged">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Поз." Width="Auto" Binding="{Binding Path=Position}"/>
-                                <DataGridTextColumn Header="Наименование" Width="*" Binding="{Binding Path=DiameterClassInfo}" CellStyle="{StaticResource LeftCellStyle}"/>
-                                <DataGridTextColumn Header="Длина, мм" Width="100" Binding="{Binding Path=Length}" CellStyle="{StaticResource LeftCellStyle}"/>
-                                <DataGridTextColumn Header="Кол." Width="50" Binding="{Binding Path=Count}"/>
-                                <DataGridTextColumn Header="Тип подсчета" Width="80" Binding="{Binding Path=CountTypeInfo}"/>
-                                <DataGridTextColumn Header="Масса, кг" Width="80" Binding="{Binding Path=Mass, StringFormat={}{0:n2}}"/>
+                                <DataGridTextColumn Header="Поз." Width="Auto" Binding="{Binding Path=PositionWithShapeMark}" CellStyle="{StaticResource LeftCellStyle}"/>
+                                <DataGridTextColumn Header="Наименование" Width="*" Binding="{Binding Path=DiameterClassLengthInfo}" CellStyle="{StaticResource LeftCellStyle}"/>
+                                <DataGridTextColumn Header="Ед. изм." Width="80" Binding="{Binding Path=CountTypeInfo}"/>
+                                <DataGridTextColumn Header="Кол." Width="80" Binding="{Binding Path=Count, StringFormat={}{0:0}}"/>
+                                <DataGridTextColumn Header="Масса ед., кг" Width="80" Binding="{Binding Path=Mass, StringFormat={}{0:n2}}"/>
                                 <DataGridTextColumn Header="Тип основы" Width="100" Binding="{Binding Path=ConstructionType}" CellStyle="{StaticResource LeftCellStyle}"/>
                                 <DataGridTextColumn Header="Метка основы" Width="80" Binding="{Binding Path=ConstructionMark}"/>
                                 <DataGridTextColumn Header="Кол. основ" Width="50" Binding="{Binding Path=ConstructionCount}"/>
@@ -250,18 +257,27 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
+                        <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="ИЗОБРАЖЕНИЕ ФОРМЫ"  Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource TitleFont}" />
+                        </StackPanel>
+
+                        <Border Grid.Row="5" Grid.Column="0" Background="White" BorderBrush="{StaticResource AtomGray700Brush}" BorderThickness="0.5"/>
+
+                        <Image x:Name="shapeImage" Grid.Row="5" Grid.Column="0" Stretch="Uniform" Margin="2,0,2,0"/>
+
+                        <StackPanel Grid.Row="6" Grid.Column="3" Orientation="Horizontal" Margin="0,20,0,0" Grid.RowSpan="2">
                             <Button x:Name="getBarIdsButton" Content="ID ЭЛЕМЕНТОВ" VerticalAlignment="Center" Width="150"
                                     Style="{StaticResource AtomGreenButtonStyle}"
                                     Click="getBarIdsButton_Click"/>
                             <Button x:Name="exportBarToExcelButton" Content="ЭКСПОРТ В EXCEL" VerticalAlignment="Center" Width="150" Margin="30,0,0,0"
                                     Style="{StaticResource AtomGreenButtonStyle}"
-                                    Command="{Binding ExportToExcelCommand}"/>
+                                    Command="{Binding ExportToExcelCommand}" Cursor="Hand"/>
                         </StackPanel>
                     </Grid>
                 </TabItem.Content>
             </TabItem>
-            <TabItem x:Name="rebarAssembliesTabItem" Header="СБОРОЧНЫЕ ЕДИНИЦЫ" Style="{StaticResource AtomTabItemStyle}">
+
+            <TabItem x:Name="rebarAssembliesTabItem" Header="СБОРОЧНЫЕ ЕДИНИЦЫ" Style="{StaticResource AtomTabItemStyle}" Margin="4,0,-5,0">
                 <TabItem.Content>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -277,7 +293,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Grid.ColumnSpan="3" Margin="0,0,40,0">
                             <TextBlock Text="ЭТАЖ"  Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource TitleFont}" />
                         </StackPanel>
 
@@ -293,7 +309,7 @@
                             </ListView.ItemTemplate>
                         </ListView>
 
-                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
                             <TextBlock Text="СЕКЦИЯ" Margin="5,0,0,0" VerticalAlignment="Center" Style="{StaticResource TitleFont}"/>
                             <ComboBox x:Name="rebarAssemblySectionsComboBox" Height="30" Margin="10,0,0,1" VerticalAlignment="Center"
                                       ItemsSource="{Binding RebarAssemblySections}" 
@@ -310,6 +326,9 @@
                                       SelectedItem="{Binding SelectedRebarAssemblyConstructionMark, Mode=TwoWay}"/>
                         </StackPanel>
 
+                        <Button Grid.Row="0" Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                Style="{StaticResource AtomQuestionMarkStyle}" Click="helpButton_Click"/>
+                        
                         <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical">
                             <Button x:Name="selectAllRebarAssemblyButton" Margin="0,15,0,0" Style="{StaticResource AtomSelectAllButtonStyle}"
                                     Command="{Binding SelectAllRebarAssemblyLevelsCommand}"/>
@@ -319,7 +338,7 @@
                                     Click="selectInModelRebarAssemblyButton_Click"/>
                         </StackPanel>
 
-                        <DataGrid x:Name="rebarAssembliesDataGrid" Grid.Row="2" Grid.Column="2" GridLinesVisibility="None" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                        <DataGrid x:Name="rebarAssembliesDataGrid" Grid.Row="2" Grid.Column="3" GridLinesVisibility="None" IsReadOnly="True" VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                                   ItemsSource="{Binding RebarAssembliesCollectionView}"
                                   SelectedItem="{Binding SelectedRebarAssembly, Mode=TwoWay}">
                             <DataGrid.Columns>
@@ -338,7 +357,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <StackPanel Grid.Row="4" Grid.Column="2" Orientation="Horizontal">
+                        <StackPanel Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Margin="0,20,0,0" Grid.RowSpan="2">
                             <Button x:Name="getRebarAssemblyIdsButton" Content="ID ЭЛЕМЕНТОВ" VerticalAlignment="Center" Width="150"
                                     Style="{StaticResource AtomGreenButtonStyle}"
                                     Click="getRebarAssemblyIdsButton_Click"/>
@@ -350,9 +369,5 @@
                 </TabItem.Content>
             </TabItem>
         </TabControl>
-
-        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button x:Name="helpButton" VerticalAlignment="Center" Style="{StaticResource AtomQuestionMarkStyle}" Click="helpButton_Click"/>
-        </StackPanel>
     </Grid>
 </Window>

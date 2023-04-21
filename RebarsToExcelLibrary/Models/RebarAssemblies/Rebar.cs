@@ -1,14 +1,19 @@
-﻿namespace RebarsToExcel.Models
+﻿using RebarsToExcel.Models.Abstractions;
+
+namespace RebarsToExcel.Models
 {
-    public class Rebar
+    /// <summary>
+    /// Класс детали сборочной единицы.
+    /// </summary>
+    public class Rebar : RebarAbstraction
     {
-        public string Class { get; set; }
-        public double Diameter { get; set; } = 0;
-        public double Length { get; set; } = 0;
-        public int Count { get; set; } = 0;
-        public double Mass { get; set; } = 0;
-        public string Shape { get; set; }
+        /// <summary>
+        /// _Тип сборки.
+        /// </summary>
         public string TypeOfAssembly { get; set; }
+        /// <summary>
+        /// _Метка сборки.
+        /// </summary>
         public string MarkOfAssembly { get; set; }
 
         public Rebar(string rebarClass, double diameter, double mass, string shape)
@@ -18,9 +23,13 @@
             Mass = mass;
             Shape = shape;
         }
-
+        /// <summary>
+        /// Получить информацию о детали без длины. Например, "Ø12А500".
+        /// </summary>
         public string GetClassDiameterInfoString() => $"⌀{Diameter}{Class}";
-
+        /// <summary>
+        /// Получить информацию о детали. Например, "Ø12А500, L=3000".
+        /// </summary>
         public string GetClassDiameterCountInfoString() => $"⌀{Diameter}{Class}, L={Length}мм - {Count}шт.";
     }
 }

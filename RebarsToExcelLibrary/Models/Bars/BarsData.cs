@@ -1,16 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace RebarsToExcel.Models
 {
+    /// <summary>
+    /// Хранилище всех деталей.
+    /// </summary>
     public static class BarsData
     {
-        private static List<Bar> _data = new List<Bar>();
-
+        private static IList<Bar> _data = new List<Bar>();
+        /// <summary>
+        /// Добавить деталь в хранилище.
+        /// </summary>
         public static void AddBar(Bar bar)
         {
-            if (bar.CountType == 1)
+            if (bar.CountType == 1) //Поштучно
             {
                 foreach (var existedBar in _data)
                 {
@@ -36,17 +40,17 @@ namespace RebarsToExcel.Models
                 }
 
                 bar.AddId(bar.Id);
-                bar.Ids.Distinct();
                 _data.Add(bar);
             }
 
-            else if (bar.CountType == 2)
+            else if (bar.CountType == 2) //Метры погонные
             {
                 foreach (var existedBar in _data)
                 {
                     if (existedBar.Position == bar.Position
                         && existedBar.Class == bar.Class
                         && existedBar.Diameter == bar.Diameter
+                        && existedBar.Mass == bar.Mass
                         && existedBar.CountType == bar.CountType
                         && existedBar.Shape == bar.Shape
                         && existedBar.ConstructionType == bar.ConstructionType
@@ -58,51 +62,59 @@ namespace RebarsToExcel.Models
                         && existedBar.Section == bar.Section)
                     {
                         existedBar.Count += bar.Count;
-                        existedBar.Length += bar.Length;
-                        existedBar.Mass += bar.Mass;
                         existedBar.AddId(bar.Id);
                         return;
                     }
                 }
 
                 bar.AddId(bar.Id);
-                bar.Ids.Distinct();
                 _data.Add(bar);
             }
         }
-
-        public static List<Bar> GetData()
+        /// <summary>
+        /// Получить коллекцию всех деталей.
+        /// </summary>
+        /// <returns>Возвращает коллекцию деталей, отсортированную сначала по секции,
+        /// затем по уровню, типу основы, метке основы и позиции.</returns>
+        public static IList<Bar> GetData()
         {
             return _data.OrderBy(x => x.Section)
                 .ThenBy(x => x.Level.Elevation)
                 .ThenBy(x => x.ConstructionType)
                 .ThenBy(x => x.ConstructionMark)
-                .ThenBy(x => x.Position)
+                .ThenBy(x => x.Position, new PositionComparer())
                 .ToList();
         }
-
-        public static List<RebarLevel> GetLevels()
+        /// <summary>
+        /// Получить коллекцию всех уникальных уровней.
+        /// </summary>
+        /// <returns>Возращает коллекцию уровней, отсортированную по возвышению над землей.</returns>
+        public static IList<RebarLevel> GetLevels()
         {
             return _data.Select(bar => bar.Level)
                 .Distinct(new LevelComparer())
                 .OrderBy(level => level.Elevation)
                 .ToList();
         }
-
-        public static List<string> GetSections()
+        /// <summary>
+        /// Получить коллекцию всех уникальных секций.
+        /// </summary>
+        /// <returns>Возращает коллекцию секций, отсортированную по алфавиту.</returns>
+        public static IList<string> GetSections()
         {
-            var sections = _data.Select(bar => bar.Section).Distinct().OrderBy(section => section).ToList();
-            sections.Insert(0, "(все)");
-            return sections;
+            return _data.Select(bar => bar.Section).Distinct().OrderBy(section => section).ToList();
         }
-
-        public static List<string> GetConstructionTypes()
+        /// <summary>
+        /// Получить коллекцию всех уникальных типов основ.
+        /// </summary>
+        /// <returns>Возращает коллекцию типов основ, отсортированную по алфавиту.</returns>
+        public static IList<string> GetConstructionTypes()
         {
-            var constructionTypes = _data.Select(bar => bar.ConstructionType).Distinct().OrderBy(type => type).ToList();
-            constructionTypes.Insert(0, "(все)");
-            return constructionTypes;
+            return _data.Select(bar => bar.ConstructionType).Distinct().OrderBy(type => type).ToList();
         }
-
+        /// <summary>
+        /// Анализировать детали по количеству основ.
+        /// </summary>
         public static void AnalyzeDataByConstructionCount()
         {
             var constructionCountBars = new List<Bar>();
@@ -117,9 +129,10 @@ namespace RebarsToExcel.Models
                         {
                             Id = bar.Id,
                             Ids = bar.Ids,
-                            IdsAsString = bar.IdsAsString,
                             Position = bar.Position,
+                            PositionWithShapeMark = bar.PositionWithShapeMark,
                             Length = bar.Length,
+                            ShapeImagePath = bar.ShapeImagePath,
                             Count = bar.Count,
                             CountType = bar.CountType,
                             Level = bar.Level,
@@ -131,8 +144,9 @@ namespace RebarsToExcel.Models
                             TypicalFloor = bar.TypicalFloor,
                             TypicalFloorCount = bar.TypicalFloorCount,
                             ElementType = RebarElementType.Virtual,
-                            DiameterClassInfo = bar.DiameterClassInfo,
+                            DiameterClassLengthInfo = bar.DiameterClassLengthInfo,
                             CountTypeInfo = bar.CountTypeInfo,
+                            Sizes = bar.Sizes,
                         };
 
                         constructionCountBars.Add(counstructionCountBar);
@@ -145,8 +159,10 @@ namespace RebarsToExcel.Models
                 AddBar(bar);
             }
         }
-
-        public static void AnalyzeDataByTypicalFloorCount(List<TypicalFloor> typicalFloors)
+        /// <summary>
+        /// Анализировать детали по количеству типовых этажей.
+        /// </summary>
+        public static void AnalyzeDataByTypicalFloorCount(IList<TypicalFloor> typicalFloors)
         {
             var typicalFloorBars = new List<Bar>();
 
@@ -167,9 +183,10 @@ namespace RebarsToExcel.Models
                         {
                             Id = bar.Id,
                             Ids = bar.Ids,
-                            IdsAsString = bar.IdsAsString,
                             Position = bar.Position,
+                            PositionWithShapeMark = bar.PositionWithShapeMark,
                             Length = bar.Length,
+                            ShapeImagePath = bar.ShapeImagePath,
                             Count = bar.Count,
                             CountType = bar.CountType,
                             Level = typicalRebarLevel,
@@ -181,8 +198,9 @@ namespace RebarsToExcel.Models
                             TypicalFloor = bar.TypicalFloor,
                             TypicalFloorCount = bar.TypicalFloorCount,
                             ElementType = RebarElementType.Virtual,
-                            DiameterClassInfo = bar.DiameterClassInfo,
+                            DiameterClassLengthInfo = bar.DiameterClassLengthInfo,
                             CountTypeInfo = bar.CountTypeInfo,
+                            Sizes = bar.Sizes,
                         };
 
                         if (typicalFloorBar.Level.Name != bar.Level.Name)
@@ -199,7 +217,7 @@ namespace RebarsToExcel.Models
             }
         }
 
-        private static List<RebarLevel> GetTypicalRebarLevels(Bar bar, List<TypicalFloor> typicalFloors)
+        private static IList<RebarLevel> GetTypicalRebarLevels(Bar bar, IList<TypicalFloor> typicalFloors)
         {
             return typicalFloors.Where(typicalFloor => typicalFloor.ConstructionTypeEnum == bar.ConstructionTypeEnum)
                 .Where(typicalFloor => typicalFloor.Floor == bar.TypicalFloor)
